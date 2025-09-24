@@ -1,11 +1,25 @@
-import { mockDisruptions } from "@/lib/mock-data";
+
+'use client';
+
+import { useState } from 'react';
+import { mockDisruptions, mockTrains } from "@/lib/mock-data";
 import { Disruption } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, Bot, Loader2 } from "lucide-react";
+import { reoptimizeOnDisruption, ReoptimizationOutput } from "@/ai/flows/reoptimize-on-disruption";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
 
 const statusColors: { [key in Disruption['status']]: string } = {
   'Active': 'bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300',
@@ -19,6 +33,34 @@ const typeColors: { [key in Disruption['type']]: string } = {
 };
 
 export default function DisruptionsPage() {
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState<string | null>(null);
+  const [optimizationResult, setOptimizationResult] = useState<ReoptimizationOutput | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleReoptimize = async (disruption: Disruption) => {
+    setIsLoading(disruption.id);
+    setOptimizationResult(null);
+    try {
+      const result = await reoptimizeOnDisruption({ 
+        disruption,
+        trains: mockTrains,
+        optimizationGoals: "Maximize section throughput and minimize overall train travel time."
+      });
+      setOptimizationResult(result);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Error re-optimizing schedule:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Failed to get a response from the AI. Please try again.',
+      });
+    } finally {
+      setIsLoading(null);
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -44,6 +86,7 @@ export default function DisruptionsPage() {
                 <TableHead>Description</TableHead>
                 <TableHead>Reported At</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -58,12 +101,55 @@ export default function DisruptionsPage() {
                    <TableCell>
                     <Badge className={cn("font-semibold", statusColors[disruption.status])}>{disruption.status}</Badge>
                   </TableCell>
+                  <TableCell className="text-right">
+                    {disruption.status === 'Active' && (
+                      <Button variant="outline" size="sm" onClick={() => handleReoptimize(disruption)} disabled={isLoading === disruption.id}>
+                        {isLoading === disruption.id ? (
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <Bot className="mr-2 h-4 w-4" />
+                        )}
+                        Re-Optimize
+                      </Button>
+                    )}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-headline flex items-center gap-2"><Bot className="text-primary"/> AI Re-optimization Plan</DialogTitle>
+            <DialogDescription>
+              AI-generated suggestions to mitigate the impact of the disruption.
+            </DialogDescription>
+          </DialogHeader>
+          {optimizationResult && (
+            <div className="grid gap-4 py-4">
+               <Card className="bg-primary/5">
+                <CardHeader>
+                  <CardTitle className="font-headline text-xl">New Schedule / Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-wrap">{optimizationResult.reoptimizationSuggestions}</p>
+                </CardContent>
+              </Card>
+               <Card className="bg-accent/5">
+                <CardHeader>
+                  <CardTitle className="font-headline text-xl">Reasoning</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="whitespace-pre-wrap">{optimizationResult.reasoning}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
