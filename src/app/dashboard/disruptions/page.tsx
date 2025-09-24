@@ -3,14 +3,14 @@
 
 import { useState } from 'react';
 import { mockDisruptions, mockTrains } from "@/lib/mock-data";
-import { Disruption } from "@/lib/types";
+import { Disruption, ReoptimizationOutput } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Bot, Loader2 } from "lucide-react";
-import { reoptimizeOnDisruption, ReoptimizationOutput } from "@/ai/flows/reoptimize-on-disruption";
+import { reoptimizeOnDisruption } from "@/ai/flows/reoptimize-on-disruption";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -143,7 +143,7 @@ export default function DisruptionsPage() {
                   <CardTitle className="font-headline text-xl">Reasoning</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="whitespace-pre-wrap">{optimizationResult.reasoning}</p>
+                  <p className="-pre-wrap">{optimizationResult.reasoning}</p>
                 </CardContent>
               </Card>
             </div>

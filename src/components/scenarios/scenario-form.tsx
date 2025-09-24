@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { refineScenarioParameters, RefineScenarioParametersOutput } from '@/ai/flows/what-if-scenario-refinement';
+import { refineScenarioParameters } from '@/ai/flows/what-if-scenario-refinement';
+import { RefineScenarioParametersOutput, RefineScenarioParametersInputSchema } from '@/lib/types';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,19 +14,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { BotMessageSquare, Sparkles, Loader2 } from 'lucide-react';
 
-const formSchema = z.object({
-  scenarioDescription: z.string().min(20, 'Please provide a more detailed scenario description.'),
-  currentKpis: z.string().min(10, 'Please describe the current KPIs.'),
-  optimizationGoals: z.string().min(10, 'Please specify your optimization goals.'),
-});
-
 export function ScenarioForm() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [aiResult, setAiResult] = useState<RefineScenarioParametersOutput | null>(null);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof RefineScenarioParametersInputSchema>>({
+    resolver: zodResolver(RefineScenarioParametersInputSchema),
     defaultValues: {
       scenarioDescription: 'Current strategy involves holding freight trains for 30 minutes to allow Rajdhani express to pass at Ghaziabad junction.',
       currentKpis: 'Rajdhani punctuality is 98%, but average freight delay has increased by 15%. Overall network throughput is down 5%.',
@@ -33,7 +28,7 @@ export function ScenarioForm() {
     },
   });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof RefineScenarioParametersInputSchema>) {
     setIsLoading(true);
     setAiResult(null);
     try {
