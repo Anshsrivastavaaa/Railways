@@ -34,7 +34,7 @@ const prompt = ai.definePrompt({
 - **Train ID:** {{id}} ({{name}}), Priority: {{priority}}, Status: {{status}}
 {{/each}}
 
-Provide a bulleted list of specific, simple instructions (e.g., "Stop Train X," "Divert Train Y to alternate route," "Reduce speed for all trains in Section Z"). Be direct and avoid lengthy explanations in the suggestions. The reasoning should briefly explain the overall strategy.
+Provide a newline-separated list of specific, simple instructions starting with a bullet point (e.g., "- Stop Train X\n- Divert Train Y to alternate route\n- Reduce speed for all trains in Section Z"). Be direct and avoid lengthy explanations in the suggestions. The reasoning should briefly explain the overall strategy.
 `,
 });
 

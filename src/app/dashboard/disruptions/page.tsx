@@ -135,7 +135,11 @@ export default function DisruptionsPage() {
                   <CardTitle className="font-headline text-xl">New Schedule / Actions</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="whitespace-pre-wrap">{optimizationResult.reoptimizationSuggestions}</p>
+                  <ul className="list-disc space-y-2 pl-5">
+                    {optimizationResult.reoptimizationSuggestions.split('\n').map((suggestion, index) => (
+                      suggestion && <li key={index}>{suggestion.replace(/^- /, '')}</li>
+                    ))}
+                  </ul>
                 </CardContent>
               </Card>
                <Card className="bg-accent/5">
@@ -143,7 +147,7 @@ export default function DisruptionsPage() {
                   <CardTitle className="font-headline text-xl">Reasoning</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="-pre-wrap">{optimizationResult.reasoning}</p>
+                  <p className="whitespace-pre-wrap">{optimizationResult.reasoning}</p>
                 </CardContent>
               </Card>
             </div>
