@@ -22,29 +22,19 @@ const prompt = ai.definePrompt({
   name: 'reoptimizeOnDisruptionPrompt',
   input: {schema: ReoptimizationInputSchema},
   output: {schema: ReoptimizationOutputSchema},
-  prompt: `You are an expert railway traffic controller. A disruption has occurred on the network. Your task is to re-optimize the train schedule to mitigate the impact of the disruption.
+  prompt: `You are an expert railway traffic controller providing concise, actionable instructions. A disruption has occurred. Your task is to provide a simple, clear, and direct plan to mitigate the disruption's impact.
 
-Analyze the provided disruption details and the current status of all trains. Then, generate a set of actionable suggestions to re-optimize the schedule based on the stated goals.
+**Disruption:** {{{disruption.type}}} at {{{disruption.location}}} - "{{{disruption.description}}}"
 
 **Optimization Goals:**
 "{{{optimizationGoals}}}"
 
-**Disruption Details:**
-- **Type:** {{{disruption.type}}}
-- **Location:** {{{disruption.location}}}
-- **Description:** {{{disruption.description}}}
-- **Status:** {{{disruption.status}}}
-
 **Current Train Status:**
 {{#each trains}}
-- **Train ID:** {{id}} ({{name}})
-  - **Priority:** {{priority}}
-  - **Status:** {{status}} (Delay: {{delay}} min)
-  - **Location:** {{currentLocation}}
-  - **Next Station:** {{nextStation}}
+- **Train ID:** {{id}} ({{name}}), Priority: {{priority}}, Status: {{status}}
 {{/each}}
 
-Based on this information, provide a new optimized schedule and the reasoning for your decisions.
+Provide a bulleted list of specific, simple instructions (e.g., "Stop Train X," "Divert Train Y to alternate route," "Reduce speed for all trains in Section Z"). Be direct and avoid lengthy explanations in the suggestions. The reasoning should briefly explain the overall strategy.
 `,
 });
 

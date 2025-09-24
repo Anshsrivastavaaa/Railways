@@ -21,14 +21,14 @@ const prompt = ai.definePrompt({
   name: 'refineScenarioParametersPrompt',
   input: {schema: RefineScenarioParametersInputSchema},
   output: {schema: RefineScenarioParametersOutputSchema},
-  prompt: `You are an expert in train scheduling and optimization. Given the current what-if scenario, KPIs, and optimization goals, suggest refined parameters to improve the scenario outcomes.
+  prompt: `You are an expert in train scheduling. Given the scenario, suggest concise, actionable parameter refinements.
 
-Scenario Description: {{{scenarioDescription}}}
-Current KPIs: {{{currentKpis}}}
-Optimization Goals: {{{optimizationGoals}}}
+**Scenario:** {{{scenarioDescription}}}
+**Current KPIs:** {{{currentKpis}}}
+**Optimization Goals:** {{{optimizationGoals}}}
 
-Refined Parameters: 
-Reasoning: `,
+Provide the refined parameters as a bulleted list of simple, direct suggestions (e.g., "Reduce freight train holding time to 15 minutes," "Assign Platform 3 for all northbound express trains"). The reasoning should briefly explain the strategy.
+`,
 });
 
 const refineScenarioParametersFlow = ai.defineFlow(
