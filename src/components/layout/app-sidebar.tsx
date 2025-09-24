@@ -62,10 +62,12 @@ export function AppSidebar() {
       <SidebarFooter className="mt-auto border-t border-sidebar-border p-2 space-y-2">
         <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton tooltip="Settings">
+              <Link href="/dashboard/settings" legacyBehavior passHref>
+                <SidebarMenuButton tooltip="Settings" isActive={pathname === '/dashboard/settings'}>
                     <Settings/>
                     <span>Settings</span>
                 </SidebarMenuButton>
+              </Link>
             </SidebarMenuItem>
              <SidebarMenuItem>
                 <Link href="/" legacyBehavior passHref>
