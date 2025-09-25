@@ -1,0 +1,514 @@
+{
+  "entities": {
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user of the RailFlow Optimizer system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user.",
+          "format": "uuid"
+        },
+        "username": {
+          "type": "string",
+          "description": "The username of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The first name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The last name of the user."
+        },
+        "role": {
+          "type": "string",
+          "description": "The role of the user within the system (e.g., controller, admin)."
+        }
+      },
+      "required": [
+        "id",
+        "username",
+        "email",
+        "firstName",
+        "lastName",
+        "role"
+      ]
+    },
+    "Train": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Train",
+      "type": "object",
+      "description": "Represents a train within the Indian Railways system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the train.",
+          "format": "uuid"
+        },
+        "trainNumber": {
+          "type": "string",
+          "description": "The unique identifier of the train (e.g., 12345)."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of train (e.g., Express, Local, Freight)."
+        },
+        "priority": {
+          "type": "number",
+          "description": "The priority of the train (higher number means higher priority)."
+        },
+        "currentLocation": {
+          "type": "string",
+          "description": "The current location (section ID) of the train. (Relationship: Train 1:1 Section)"
+        },
+        "destination": {
+          "type": "string",
+          "description": "The destination station (station ID) of the train."
+        },
+        "delay": {
+          "type": "number",
+          "description": "The current delay of the train in minutes."
+        }
+      },
+      "required": [
+        "id",
+        "trainNumber",
+        "type",
+        "priority",
+        "currentLocation",
+        "destination",
+        "delay"
+      ]
+    },
+    "Section": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Section",
+      "type": "object",
+      "description": "Represents a section of the railway track between two stations.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the section.",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name or code of the section."
+        },
+        "length": {
+          "type": "number",
+          "description": "The length of the section in kilometers."
+        },
+        "capacity": {
+          "type": "number",
+          "description": "The maximum number of trains allowed in this section simultaneously."
+        },
+        "fromStation": {
+          "type": "string",
+          "description": "Reference to the starting Station. (Relationship: Section 1:1 Station)"
+        },
+        "toStation": {
+          "type": "string",
+          "description": "Reference to the ending Station. (Relationship: Section 1:1 Station)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "length",
+        "capacity",
+        "fromStation",
+        "toStation"
+      ]
+    },
+    "Station": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Station",
+      "type": "object",
+      "description": "Represents a railway station.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the station.",
+          "format": "uuid"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the station."
+        },
+        "code": {
+          "type": "string",
+          "description": "The station code (e.g., NDLS for New Delhi)."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The latitude of the station."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The longitude of the station."
+        },
+        "platformIds": {
+          "type": "array",
+          "description": "List of platforms this station has. (Relationship: Station 1:N Platform)",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "code",
+        "latitude",
+        "longitude"
+      ]
+    },
+    "Platform": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Platform",
+      "type": "object",
+      "description": "Represents a platform at a railway station.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the platform.",
+          "format": "uuid"
+        },
+        "stationId": {
+          "type": "string",
+          "description": "Reference to the Station. (Relationship: Station 1:N Platform)"
+        },
+        "number": {
+          "type": "number",
+          "description": "The platform number (e.g., 1, 2, 3)."
+        },
+        "length": {
+          "type": "number",
+          "description": "The length of the platform in meters."
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "Indicates whether the platform is currently available."
+        }
+      },
+      "required": [
+        "id",
+        "stationId",
+        "number",
+        "length",
+        "isAvailable"
+      ]
+    },
+    "Timetable": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Timetable",
+      "type": "object",
+      "description": "Represents the scheduled arrival and departure times of a train at various stations.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the timetable entry.",
+          "format": "uuid"
+        },
+        "trainId": {
+          "type": "string",
+          "description": "Reference to the Train. (Relationship: Train 1:N Timetable)"
+        },
+        "stationId": {
+          "type": "string",
+          "description": "Reference to the Station. (Relationship: Station 1:N Timetable)"
+        },
+        "arrivalScheduled": {
+          "type": "string",
+          "description": "The scheduled arrival time at the station.",
+          "format": "date-time"
+        },
+        "departureScheduled": {
+          "type": "string",
+          "description": "The scheduled departure time from the station.",
+          "format": "date-time"
+        },
+        "arrivalActual": {
+          "type": "string",
+          "description": "The actual arrival time at the station.",
+          "format": "date-time"
+        },
+        "departureActual": {
+          "type": "string",
+          "description": "The actual departure time from the station.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "trainId",
+        "stationId",
+        "arrivalScheduled",
+        "departureScheduled"
+      ]
+    },
+    "Disruption": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Disruption",
+      "type": "object",
+      "description": "Represents a disruption event affecting train schedules.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the disruption event.",
+          "format": "uuid"
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of disruption (e.g., weather, breakdown, track maintenance)."
+        },
+        "location": {
+          "type": "string",
+          "description": "The location (section ID) where the disruption occurred. (Relationship: Disruption 1:1 Section)"
+        },
+        "startTime": {
+          "type": "string",
+          "description": "The start time of the disruption.",
+          "format": "date-time"
+        },
+        "endTime": {
+          "type": "string",
+          "description": "The expected end time of the disruption.",
+          "format": "date-time"
+        },
+        "affectedTrainIds": {
+          "type": "array",
+          "description": "List of trains affected by the disruption. (Relationship: Disruption 1:N Train)",
+          "items": {
+            "type": "string"
+          }
+        },
+        "severity": {
+          "type": "string",
+          "description": "Severity of the disruption, example: critical, major, minor"
+        },
+        "description": {
+          "type": "string",
+          "description": "A description of the disruption event."
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "location",
+        "startTime",
+        "endTime",
+        "affectedTrainIds"
+      ]
+    },
+    "AuditLog": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AuditLog",
+      "type": "object",
+      "description": "Represents a log of decisions, controller overrides, and performance metrics.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the log entry.",
+          "format": "uuid"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "The timestamp of the log entry.",
+          "format": "date-time"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the User who made the decision. (Relationship: User 1:N AuditLog)"
+        },
+        "action": {
+          "type": "string",
+          "description": "The action that was performed (e.g., train rerouted, schedule updated)."
+        },
+        "details": {
+          "type": "string",
+          "description": "Detailed information about the action performed (e.g., train ID, new route)."
+        },
+        "kpiValues": {
+          "type": "string",
+          "description": "Key Performance Indicators values at the moment the log was generated"
+        }
+      },
+      "required": [
+        "id",
+        "timestamp",
+        "userId",
+        "action",
+        "details"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "user",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Uses path-based ownership for private data. Each user document is accessible only to the authenticated user with the matching userId.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/trains/{trainId}",
+        "definition": {
+          "entityName": "train",
+          "schema": {
+            "$ref": "#/backend/entities/Train"
+          },
+          "description": "Stores train information. No specific authorization fields are denormalized as global read access is assumed, with write access controlled through other mechanisms (e.g., server-side logic or admin roles).",
+          "params": [
+            {
+              "name": "trainId",
+              "description": "The unique identifier for the train."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/sections/{sectionId}",
+        "definition": {
+          "entityName": "section",
+          "schema": {
+            "$ref": "#/backend/entities/Section"
+          },
+          "description": "Stores railway section data. No specific authorization fields are denormalized as global read access is assumed, with write access controlled through other mechanisms.",
+          "params": [
+            {
+              "name": "sectionId",
+              "description": "The unique identifier for the section."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/stations/{stationId}",
+        "definition": {
+          "entityName": "station",
+          "schema": {
+            "$ref": "#/backend/entities/Station"
+          },
+          "description": "Stores station information. No specific authorization fields are denormalized as global read access is assumed, with write access controlled through other mechanisms.",
+          "params": [
+            {
+              "name": "stationId",
+              "description": "The unique identifier for the station."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/stations/{stationId}/platforms/{platformId}",
+        "definition": {
+          "entityName": "platform",
+          "schema": {
+            "$ref": "#/backend/entities/Platform"
+          },
+          "description": "Stores platform information for each station. Access control is implicitly managed via the parent station document. No explicit denormalization is needed.",
+          "params": [
+            {
+              "name": "stationId",
+              "description": "The unique identifier for the station."
+            },
+            {
+              "name": "platformId",
+              "description": "The unique identifier for the platform."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/timetables/{timetableId}",
+        "definition": {
+          "entityName": "timetable",
+          "schema": {
+            "$ref": "#/backend/entities/Timetable"
+          },
+          "description": "Stores timetable entries. To ensure authorization independence, denormalize relevant 'train' properties (e.g., priority) into each timetable document if access depends on train characteristics.  This avoids `get()` calls to the `/trains` collection.",
+          "params": [
+            {
+              "name": "timetableId",
+              "description": "The unique identifier for the timetable entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/disruptions/{disruptionId}",
+        "definition": {
+          "entityName": "disruption",
+          "schema": {
+            "$ref": "#/backend/entities/Disruption"
+          },
+          "description": "Stores disruption events. If different user roles require different access levels to disruptions based on severity or location, these attributes can be denormalized into the document to avoid `get()` calls.",
+          "params": [
+            {
+              "name": "disruptionId",
+              "description": "The unique identifier for the disruption event."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/audit_logs/{auditLogId}",
+        "definition": {
+          "entityName": "auditLog",
+          "schema": {
+            "$ref": "#/backend/entities/AuditLog"
+          },
+          "description": "Stores audit logs.  To restrict access based on the user who triggered the action, denormalize 'userId' for filtering and ownership checks. Alternatively, store logs within the user's document (`/users/{userId}/audit_logs/{auditLogId}`) for path-based access control.",
+          "params": [
+            {
+              "name": "auditLogId",
+              "description": "The unique identifier for the audit log entry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "role",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Collection for storing admin roles. The existence of a document in this collection indicates admin privileges for the user.  Used for DBAC (Database-Based Access Control).",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier for the user."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to ensure security, scalability, and ease of debugging, adhering to the core design principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved through denormalization of authorization-related data. For example, if access to a timetable document depends on train properties, the relevant train properties are copied into the timetable document. Structural Segregation is implemented by separating data with different access requirements into distinct collections. Access modeling follows consistent patterns, utilizing path-based ownership for private data and membership maps for collaborative data. The structure also supports invariants like ownership, timestamps, and denormalized data consistency."
+  }
+}

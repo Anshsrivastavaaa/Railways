@@ -1,0 +1,164 @@
+/**
+ * @fileoverview Firestore Security Rules for RailFlow Optimizer.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes strong authorization by enforcing strict owner-only access for user profiles
+ * and assuming public read access for train, section, and station data.  Administrative privileges are
+ * managed through a dedicated `roles_admin` collection.  Write access to publicly readable collections
+ * is generally denied in these rules and intended to be managed via server-side logic.
+ *
+ * Data Structure:
+ * - /users/{userId}:  User profile data, accessible only to the user themselves.
+ * - /trains/{trainId}: Train data. Public read access. Write access restricted (server-side).
+ * - /sections/{sectionId}: Railway section data. Public read access. Write access restricted (server-side).
+ * - /stations/{stationId}: Station information. Public read access. Write access restricted (server-side).
+ * - /stations/{stationId}/platforms/{platformId}: Platform data. Access controlled by parent station.
+ * - /timetables/{timetableId}: Timetable entries. Public read access. Write access restricted (server-side).
+ * - /disruptions/{disruptionId}: Disruption events. Public read access. Write access restricted (server-side).
+ * - /audit_logs/{auditLogId}: Audit logs. Public read access. Write access restricted (server-side).
+ * - /roles_admin/{userId}:  Indicates admin privileges for a user.
+ *
+ * Key Security Decisions:
+ * - User data is strictly private and accessible only to the owning user.
+ * - Listing of users is disallowed.
+ * - Data in `trains`, `sections`, `stations`, `timetables`, `disruptions`, and `audit_logs` collections is
+ *   assumed to be publicly readable. Write access to these collections is explicitly denied here and should
+ *   be handled by trusted server-side logic or admin roles.
+ * - Administrative privileges are granted based on the existence of a document in the `/roles_admin/{userId}` collection.
+ *
+ * Denormalization for Authorization:
+ *  To avoid costly `get()` calls and ensure Authorization Independence, this ruleset relies on the principle of
+ *  denormalizing authorization-relevant data directly into the documents being secured. This allows for efficient
+ *  and secure access control without the need for additional database reads during rule evaluation.
+ *
+ * Structural Segregation:
+ *  This ruleset employs structural segregation by placing user-specific private data (user profiles) in a dedicated
+ *  collection (`/users/{userId}`). This ensures that access to user data is strictly controlled and avoids the
+ *  need for complex filtering based on document content.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Grants access to user profile data, accessible only to the user themselves.
+     * @path /users/{userId}
+     * @allow (create) - User with UID 'user123' can create their profile at /users/user123.
+     * @allow (get, update, delete) - User with UID 'user123' can access their profile at /users/user123.
+     * @deny (create) - User with UID 'user456' cannot create a profile at /users/user123.
+     * @deny (get, update, delete) - User with UID 'user456' cannot access the profile at /users/user123.
+     * @principle Enforces document ownership for writes. Restricts access to a user's own data tree.
+     */
+    match /users/{userId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
+      }
+      function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+      }
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Grants public read access to train data, with write access restricted.
+     * @path /trains/{trainId}
+     * @allow (get, list) - Any user (signed in or not) can read train data.
+     * @deny (create, update, delete) - No user can create, update, or delete train data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /trains/{trainId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants public read access to railway section data, with write access restricted.
+     * @path /sections/{sectionId}
+     * @allow (get, list) - Any user (signed in or not) can read section data.
+     * @deny (create, update, delete) - No user can create, update, or delete section data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /sections/{sectionId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants public read access to station information, with write access restricted.
+     * @path /stations/{stationId}
+     * @allow (get, list) - Any user (signed in or not) can read station data.
+     * @deny (create, update, delete) - No user can create, update, or delete station data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /stations/{stationId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants access to platform data based on the parent station. Write access restricted.
+     * @path /stations/{stationId}/platforms/{platformId}
+     * @allow (get, list) - Any user can read platform data.
+     * @deny (create, update, delete) - No user can create, update, or delete platform data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /stations/{stationId}/platforms/{platformId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants public read access to timetable entries, with write access restricted.
+     * @path /timetables/{timetableId}
+     * @allow (get, list) - Any user (signed in or not) can read timetable data.
+     * @deny (create, update, delete) - No user can create, update, or delete timetable data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /timetables/{timetableId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants public read access to disruption events, with write access restricted.
+     * @path /disruptions/{disruptionId}
+     * @allow (get, list) - Any user (signed in or not) can read disruption data.
+     * @deny (create, update, delete) - No user can create, update, or delete disruption data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /disruptions/{disruptionId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Grants public read access to audit logs, with write access restricted.
+     * @path /audit_logs/{auditLogId}
+     * @allow (get, list) - Any user (signed in or not) can read audit log data.
+     * @deny (create, update, delete) - No user can create, update, or delete audit log data through the client.
+     * @principle Assumes public read access. Restricts write access to server-side.
+     */
+    match /audit_logs/{auditLogId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+      /**
+       * @description Grants admin privileges based on the existence of a document in the roles_admin collection.
+       * @path /roles_admin/{userId}
+       * @allow (get) - Allows read access to determine if a user has admin privileges.
+       * @allow (list) - Listing of roles_admin is not allowed.
+       * @allow (create, update, delete) - No user can create, update, or delete roles through the client.
+       * @principle DBAC (Database-Based Access Control).
+       */
+    match /roles_admin/{userId} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update, delete: if false;
+    }
+  }
+}
