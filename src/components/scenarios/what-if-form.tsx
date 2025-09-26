@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -154,7 +155,7 @@ export function WhatIfForm() {
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a train to re-route" />
-                            </SelectTrigger>
+                            </Trigger>
                           </FormControl>
                           <SelectContent>
                             {mockTrains.map(train => (
