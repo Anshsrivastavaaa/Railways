@@ -64,7 +64,7 @@ export function WhatIfForm() {
     try {
       const result = await refineScenarioParameters({
         scenarioDescription,
-        currentKpis: 'Current KPIs are stable. Rajdhani punctuality is 98%, but average freight delay is 12%.', // Example KPI
+        currentKpis: 'Current KPIs are stable. Rajdhani punctuality is 98%, but average freight delay is 12%.',
         optimizationGoals: values.optimizationGoals,
       });
       setAiResult(result);
