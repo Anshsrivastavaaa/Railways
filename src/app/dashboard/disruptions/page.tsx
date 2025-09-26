@@ -2,6 +2,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { mockDisruptions, mockTrains } from "@/lib/mock-data";
 import { Disruption, ReoptimizationOutput } from "@/lib/types";
 import { Badge } from "@/components/ui/badge";
@@ -16,9 +19,15 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog"
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 
 
 const statusColors: { [key in Disruption['status']]: string } = {
@@ -32,11 +41,24 @@ const typeColors: { [key in Disruption['type']]: string } = {
     'Maintenance': 'border-purple-500 text-purple-600',
 };
 
+const newDisruptionSchema = z.object({
+    type: z.enum(['Weather', 'Breakdown', 'Maintenance']),
+    location: z.string().min(1, 'Location is required'),
+    description: z.string().min(1, 'Description is required'),
+});
+
+type NewDisruptionForm = z.infer<typeof newDisruptionSchema>;
+
 export default function DisruptionsPage() {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState<string | null>(null);
   const [optimizationResult, setOptimizationResult] = useState<ReoptimizationOutput | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm<NewDisruptionForm>({
+      resolver: zodResolver(newDisruptionSchema),
+  });
 
   const handleReoptimize = async (disruption: Disruption) => {
     setIsLoading(disruption.id);
@@ -61,14 +83,65 @@ export default function DisruptionsPage() {
     }
   }
 
+  const handleReportSubmit = (data: NewDisruptionForm) => {
+    console.log('New Disruption Reported:', data);
+    // Here you would typically send the data to your backend/database
+    // For now, we'll just show a success toast and close the modal
+    toast({
+        title: 'Success',
+        description: 'New disruption has been reported.',
+    });
+    setIsReportModalOpen(false);
+    reset();
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-headline font-bold">Disruption Management</h1>
-        <Button className="bg-accent hover:bg-accent/90">
-            <PlusCircle className="mr-2 h-4 w-4"/>
-            Report New Disruption
-        </Button>
+        <Dialog open={isReportModalOpen} onOpenChange={setIsReportModalOpen}>
+            <DialogTrigger asChild>
+                <Button className="bg-accent hover:bg-accent/90">
+                    <PlusCircle className="mr-2 h-4 w-4"/>
+                    Report New Disruption
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Report New Disruption</DialogTitle>
+                    <DialogDescription>
+                        Fill in the details of the network disruption.
+                    </DialogDescription>
+                </DialogHeader>
+                <form onSubmit={handleSubmit(handleReportSubmit)} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="type">Disruption Type</Label>
+                        <select
+                            id="type"
+                            {...register('type')}
+                            className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <option value="Breakdown">Breakdown</option>
+                            <option value="Weather">Weather</option>
+                            <option value="Maintenance">Maintenance</option>
+                        </select>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="location">Location</Label>
+                        <Input id="location" {...register('location')} placeholder="e.g., Section NDLS-CNB" />
+                        {errors.location && <p className="text-sm text-destructive">{errors.location.message}</p>}
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea id="description" {...register('description')} placeholder="Describe the issue in detail" />
+                        {errors.description && <p className="text-sm text-destructive">{errors.description.message}</p>}
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit" className="bg-primary hover:bg-primary/90">Submit Report</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
       </div>
       <Card>
         <CardHeader>
