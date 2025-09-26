@@ -1,13 +1,16 @@
-import { ScenarioForm } from "@/components/scenarios/scenario-form";
+import { WhatIfForm } from "@/components/scenarios/what-if-form";
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ScenariosPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-headline font-bold">What-If Scenario Simulation</h1>
-      <p className="text-muted-foreground">
-        Use our AI-powered tool to refine your strategies. Describe a scenario, input the current KPIs and your goals, and let the AI suggest optimized parameters.
-      </p>
-      <ScenarioForm />
+       <div className="space-y-2">
+         <h1 className="text-3xl font-headline font-bold">What-If Scenario Simulation</h1>
+         <p className="text-muted-foreground">
+            Select a scenario type, fill in the details, and let the AI suggest an optimized operational plan.
+         </p>
+       </div>
+      <WhatIfForm />
     </div>
   );
 }
