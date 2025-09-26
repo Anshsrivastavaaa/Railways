@@ -18,7 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Bot, Sparkles, Loader2 } from 'lucide-react';
 
 const scenarioSchema = z.object({
-  scenarioType: z.enum(['halt-train', 'change-route', 'track-maintenance']),
+  scenarioType: z.enum(['add-train', 'halt-train', 'change-route', 'track-maintenance']),
   trainId: z.string().optional(),
   newRoute: z.string().optional(),
   trackId: z.string().optional(),
@@ -36,7 +36,7 @@ export function WhatIfForm() {
     resolver: zodResolver(scenarioSchema),
     defaultValues: {
       optimizationGoals: 'Minimize freight delay while maintaining high-priority train punctuality above 95%.',
-    },
+    }
   });
 
   const scenarioType = form.watch('scenarioType');
@@ -48,6 +48,9 @@ export function WhatIfForm() {
     // Construct the scenario description from form values
     let scenarioDescription = '';
     switch (values.scenarioType) {
+        case 'add-train':
+            scenarioDescription = `What if we add a new high-priority passenger train to the network?`;
+            break;
         case 'halt-train':
             const train = mockTrains.find(t => t.id === values.trainId);
             scenarioDescription = `What if we halt Train ${values.trainId} (${train?.name}) at its current location?`;
@@ -106,6 +109,7 @@ export function WhatIfForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
+                        <SelectItem value="add-train">I add a new train?</SelectItem>
                         <SelectItem value="halt-train">I halt a train?</SelectItem>
                         <SelectItem value="change-route">I change a train's route?</SelectItem>
                         <SelectItem value="track-maintenance">A track is under maintenance?</SelectItem>
@@ -127,7 +131,7 @@ export function WhatIfForm() {
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a train to halt" />
-                          </SelectTrigger>
+                          </Trigger>
                         </FormControl>
                         <SelectContent>
                           {mockTrains.map(train => (
