@@ -23,7 +23,7 @@ const prompt = ai.definePrompt({
   output: {schema: RefineScenarioParametersOutputSchema},
   prompt: `You are an AI assistant for a busy train traffic controller who needs extremely brief and crisp recommendations. Your suggestions must be direct, one-line commands.
 
-**Scenario:** {{{scenarioDescription}}}
+**Scenario Description:** {{{scenarioDescription}}}
 **Current KPIs:** {{{currentKpis}}}
 **Optimization Goals:** {{{optimizationGoals}}}
 

@@ -15,13 +15,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Bot, Sparkles, Loader2 } from 'lucide-react';
+import { Input } from '../ui/input';
 
 const scenarioSchema = z.object({
-  scenarioType: z.enum(['add-train', 'halt-train', 'change-route', 'track-maintenance']),
+  scenarioType: z.enum([
+    'engine-failure',
+    'track-maintenance',
+    'signal-failure',
+    'derailment',
+    'medical-emergency',
+    'security-threat',
+    'reroute-train',
+    'reschedule-train',
+  ]),
   trainId: z.string().optional(),
-  newRoute: z.string().optional(),
   trackId: z.string().optional(),
-  optimizationGoals: z.string().min(1, "Optimization goals are required."),
+  duration: z.string().optional(),
+  newRoute: z.string().optional(),
+  rescheduleTime: z.string().optional(),
+  optimizationGoals: z.string().min(1, 'Optimization goals are required.'),
 });
 
 type ScenarioFormValues = z.infer<typeof scenarioSchema>;
@@ -45,22 +57,32 @@ export function WhatIfForm() {
     setAiResult(null);
 
     let scenarioDescription = '';
+    const train = values.trainId ? mockTrains.find(t => t.id === values.trainId) : null;
+    
     switch (values.scenarioType) {
-      case 'add-train':
-        scenarioDescription = `What if a new high-priority express train is added to the network during peak hours?`;
+      case 'engine-failure':
+        scenarioDescription = `What if Train ${train?.name} (${values.trainId}) has an engine failure at ${train?.currentLocation}?`;
         break;
-      case 'halt-train': {
-        const trainToHalt = mockTrains.find(t => t.id === values.trainId);
-        scenarioDescription = `What if we halt Train ${values.trainId} (${trainToHalt?.name}) at its current location for 30 minutes?`;
-        break;
-      }
-      case 'change-route': {
-        const trainToReroute = mockTrains.find(t => t.id === values.trainId);
-        scenarioDescription = `What if we change the route of Train ${values.trainId} (${trainToReroute?.name}) to the following route: ${values.newRoute}?`;
-        break;
-      }
       case 'track-maintenance':
-        scenarioDescription = `What if the track section ${values.trackId} is blocked for maintenance for the next 2 hours?`;
+        scenarioDescription = `What if the track section ${values.trackId} is blocked for maintenance for ${values.duration} hours?`;
+        break;
+      case 'signal-failure':
+        scenarioDescription = `What if there is a signal failure on section ${values.trackId} expected to last ${values.duration} hours?`;
+        break;
+      case 'derailment':
+        scenarioDescription = `What if Train ${train?.name} (${values.trainId}) derails near ${train?.currentLocation}?`;
+        break;
+      case 'medical-emergency':
+        scenarioDescription = `What if there is a medical emergency on Train ${train?.name} (${values.trainId}), requiring a ${values.duration} minute stop at the next station?`;
+        break;
+      case 'security-threat':
+        scenarioDescription = `What if a security threat is reported on Train ${train?.name} (${values.trainId})?`;
+        break;
+      case 'reroute-train':
+        scenarioDescription = `What if we change the route of Train ${train?.name} (${values.trainId}) to the following route: ${values.newRoute}?`;
+        break;
+      case 'reschedule-train':
+         scenarioDescription = `What if we reschedule the departure of Train ${train?.name} (${values.trainId}) to ${values.rescheduleTime}?`;
         break;
     }
 
@@ -82,6 +104,17 @@ export function WhatIfForm() {
       setIsLoading(false);
     }
   }
+  
+  const scenarios = [
+    { value: 'engine-failure', label: 'Engine Failure' },
+    { value: 'track-maintenance', label: 'Track Maintenance' },
+    { value: 'signal-failure', label: 'Signal Failure' },
+    { value: 'derailment', label: 'Derailment' },
+    { value: 'medical-emergency', label: 'Medical Emergency' },
+    { value: 'security-threat', label: 'Security Threat' },
+    { value: 'reroute-train', label: 'Reroute a Train' },
+    { value: 'reschedule-train', label: 'Reschedule a Train' },
+  ];
 
   return (
     <div className="grid gap-8 md:grid-cols-2">
@@ -101,7 +134,7 @@ export function WhatIfForm() {
                 name="scenarioType"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>What if...</FormLabel>
+                    <FormLabel>Select a scenario...</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -109,10 +142,9 @@ export function WhatIfForm() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="add-train">I add a new train?</SelectItem>
-                        <SelectItem value="halt-train">I halt a train?</SelectItem>
-                        <SelectItem value="change-route">I change a train's route?</SelectItem>
-                        <SelectItem value="track-maintenance">A track is under maintenance?</SelectItem>
+                        {scenarios.map(s => (
+                            <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -120,7 +152,7 @@ export function WhatIfForm() {
                 )}
               />
 
-              {scenarioType === 'halt-train' && (
+              {(scenarioType === 'engine-failure' || scenarioType === 'derailment' || scenarioType === 'medical-emergency' || scenarioType === 'security-threat' || scenarioType === 'reroute-train' || scenarioType === 'reschedule-train') && (
                 <FormField
                   control={form.control}
                   name="trainId"
@@ -130,7 +162,7 @@ export function WhatIfForm() {
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select a train to halt" />
+                            <SelectValue placeholder="Select a train" />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -147,49 +179,7 @@ export function WhatIfForm() {
                 />
               )}
 
-              {scenarioType === 'change-route' && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="trainId"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Which train?</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a train to re-route" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {mockTrains.map(train => (
-                              <SelectItem key={train.id} value={train.id}>
-                                {train.name} ({train.id})
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="newRoute"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>What is the new route?</FormLabel>
-                        <FormControl>
-                          <Textarea placeholder="Describe the new route (e.g., via Panvel, then to Vasai Road)" {...field} rows={2} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-
-              {scenarioType === 'track-maintenance' && (
+              {(scenarioType === 'track-maintenance' || scenarioType === 'signal-failure') && (
                 <FormField
                   control={form.control}
                   name="trackId"
@@ -203,13 +193,61 @@ export function WhatIfForm() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {mockDisruptions.map(d => (
-                            <SelectItem key={d.id} value={d.location}>
-                              {d.location}
+                          {[...new Set(mockDisruptions.map(d => d.location))].map(location => (
+                            <SelectItem key={location} value={location}>
+                              {location}
                             </SelectItem>
                           ))}
                         </SelectContent>
                       </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+
+              {(scenarioType === 'track-maintenance' || scenarioType === 'signal-failure' || scenarioType === 'medical-emergency') && (
+                 <FormField
+                  control={form.control}
+                  name="duration"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Estimated Duration (in minutes)?</FormLabel>
+                      <FormControl>
+                         <Input type="number" placeholder="e.g., 60" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
+              
+              {scenarioType === 'reroute-train' && (
+                  <FormField
+                    control={form.control}
+                    name="newRoute"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What is the new route?</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Describe the new route (e.g., via Panvel, then to Vasai Road)" {...field} rows={2} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+              )}
+
+              {scenarioType === 'reschedule-train' && (
+                 <FormField
+                  control={form.control}
+                  name="rescheduleTime"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>New Departure Time</FormLabel>
+                      <FormControl>
+                         <Input type="time" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -257,7 +295,9 @@ export function WhatIfForm() {
                 <CardDescription>AI-suggested adjustments to your scenario.</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="whitespace-pre-wrap">{aiResult.refinedParameters}</p>
+                <ul className="list-disc space-y-2 pl-5">
+                    {aiResult.refinedParameters.split('\n').map((item, index) => item && <li key={index}>{item.replace(/^- /, '')}</li>)}
+                </ul>
               </CardContent>
             </Card>
             <Card className="bg-accent/5">
