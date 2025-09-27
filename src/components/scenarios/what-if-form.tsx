@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -47,20 +46,22 @@ export function WhatIfForm() {
 
     let scenarioDescription = '';
     switch (values.scenarioType) {
-        case 'add-train':
-            scenarioDescription = `What if a new high-priority express train is added to the network during peak hours?`;
-            break;
-        case 'halt-train':
-            const trainToHalt = mockTrains.find(t => t.id === values.trainId);
-            scenarioDescription = `What if we halt Train ${values.trainId} (${trainToHalt?.name}) at its current location for 30 minutes?`;
-            break;
-        case 'change-route':
-            const trainToReroute = mockTrains.find(t => t.id === values.trainId);
-            scenarioDescription = `What if we change the route of Train ${values.trainId} (${trainToReroute?.name}) to the following route: ${values.newRoute}?`;
-            break;
-        case 'track-maintenance':
-            scenarioDescription = `What if the track section ${values.trackId} is blocked for maintenance for the next 2 hours?`;
-            break;
+      case 'add-train':
+        scenarioDescription = `What if a new high-priority express train is added to the network during peak hours?`;
+        break;
+      case 'halt-train': {
+        const trainToHalt = mockTrains.find(t => t.id === values.trainId);
+        scenarioDescription = `What if we halt Train ${values.trainId} (${trainToHalt?.name}) at its current location for 30 minutes?`;
+        break;
+      }
+      case 'change-route': {
+        const trainToReroute = mockTrains.find(t => t.id === values.trainId);
+        scenarioDescription = `What if we change the route of Train ${values.trainId} (${trainToReroute?.name}) to the following route: ${values.newRoute}?`;
+        break;
+      }
+      case 'track-maintenance':
+        scenarioDescription = `What if the track section ${values.trackId} is blocked for maintenance for the next 2 hours?`;
+        break;
     }
 
     try {
@@ -130,7 +131,7 @@ export function WhatIfForm() {
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a train to halt" />
-                          </Trigger>
+                          </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {mockTrains.map(train => (
@@ -158,7 +159,7 @@ export function WhatIfForm() {
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a train to re-route" />
-                            </Trigger>
+                            </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {mockTrains.map(train => (
@@ -172,19 +173,19 @@ export function WhatIfForm() {
                       </FormItem>
                     )}
                   />
-                   <FormField
-                      control={form.control}
-                      name="newRoute"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>What is the new route?</FormLabel>
-                           <FormControl>
-                             <Textarea placeholder="Describe the new route (e.g., via Panvel, then to Vasai Road)" {...field} rows={2}/>
-                           </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <FormField
+                    control={form.control}
+                    name="newRoute"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>What is the new route?</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Describe the new route (e.g., via Panvel, then to Vasai Road)" {...field} rows={2} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </>
               )}
 
@@ -199,7 +200,7 @@ export function WhatIfForm() {
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a track section" />
-                          </Trigger>
+                          </SelectTrigger>
                         </FormControl>
                         <SelectContent>
                           {mockDisruptions.map(d => (
@@ -222,7 +223,7 @@ export function WhatIfForm() {
                   <FormItem>
                     <FormLabel>Optimization Goals</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="What are you trying to achieve? (e.g., maximize throughput, minimize delays)..." {...field} rows={3}/>
+                      <Textarea placeholder="What are you trying to achieve? (e.g., maximize throughput, minimize delays)..." {...field} rows={3} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -240,13 +241,13 @@ export function WhatIfForm() {
           </Form>
         </CardContent>
       </Card>
-      
+
       <div className="space-y-8">
         {isLoading && (
-            <Card className="flex flex-col items-center justify-center min-h-[400px]">
-                <Loader2 className="h-16 w-16 animate-spin text-primary"/>
-                <p className="mt-4 text-muted-foreground">AI is analyzing your scenario...</p>
-            </Card>
+          <Card className="flex flex-col items-center justify-center min-h-[400px]">
+            <Loader2 className="h-16 w-16 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">AI is analyzing your scenario...</p>
+          </Card>
         )}
         {aiResult && (
           <>
@@ -263,7 +264,7 @@ export function WhatIfForm() {
               <CardHeader>
                 <CardTitle className="font-headline text-2xl">Reasoning</CardTitle>
                 <CardDescription>The "why" behind the AI's suggestions.</CardDescription>
-              </Header>
+              </CardHeader>
               <CardContent>
                 <p className="whitespace-pre-wrap">{aiResult.reasoning}</p>
               </CardContent>
@@ -271,10 +272,10 @@ export function WhatIfForm() {
           </>
         )}
         {!isLoading && !aiResult && (
-             <Card className="flex flex-col items-center justify-center min-h-[400px] border-dashed">
-                <Sparkles className="h-16 w-16 text-muted-foreground/50"/>
-                <p className="mt-4 text-muted-foreground">AI suggestions will appear here.</p>
-            </Card>
+          <Card className="flex flex-col items-center justify-center min-h-[400px] border-dashed">
+            <Sparkles className="h-16 w-16 text-muted-foreground/50" />
+            <p className="mt-4 text-muted-foreground">AI suggestions will appear here.</p>
+          </Card>
         )}
       </div>
     </div>
