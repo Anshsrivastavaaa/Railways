@@ -36,7 +36,7 @@ export function WhatIfForm() {
     resolver: zodResolver(scenarioSchema),
     defaultValues: {
       optimizationGoals: 'Minimize freight delay while maintaining high-priority train punctuality above 95%.',
-    }
+    },
   });
 
   const scenarioType = form.watch('scenarioType');
@@ -45,7 +45,6 @@ export function WhatIfForm() {
     setIsLoading(true);
     setAiResult(null);
 
-    // Construct the scenario description from form values
     let scenarioDescription = '';
     switch (values.scenarioType) {
         case 'add-train':
