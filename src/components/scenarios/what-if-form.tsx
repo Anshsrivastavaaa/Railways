@@ -200,7 +200,7 @@ export function WhatIfForm() {
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select a track section" />
-                          </SelectTrigger>
+                          </Trigger>
                         </FormControl>
                         <SelectContent>
                           {mockDisruptions.map(d => (
