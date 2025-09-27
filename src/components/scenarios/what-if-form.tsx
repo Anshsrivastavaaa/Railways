@@ -48,25 +48,25 @@ export function WhatIfForm() {
     let scenarioDescription = '';
     switch (values.scenarioType) {
         case 'add-train':
-            scenarioDescription = `What if we add a new high-priority passenger train to the network?`;
+            scenarioDescription = `What if a new high-priority express train is added to the network during peak hours?`;
             break;
         case 'halt-train':
-            const train = mockTrains.find(t => t.id === values.trainId);
-            scenarioDescription = `What if we halt Train ${values.trainId} (${train?.name}) at its current location?`;
+            const trainToHalt = mockTrains.find(t => t.id === values.trainId);
+            scenarioDescription = `What if we halt Train ${values.trainId} (${trainToHalt?.name}) at its current location for 30 minutes?`;
             break;
         case 'change-route':
             const trainToReroute = mockTrains.find(t => t.id === values.trainId);
             scenarioDescription = `What if we change the route of Train ${values.trainId} (${trainToReroute?.name}) to the following route: ${values.newRoute}?`;
             break;
         case 'track-maintenance':
-            scenarioDescription = `What if Track ID ${values.trackId} is closed for maintenance?`;
+            scenarioDescription = `What if the track section ${values.trackId} is blocked for maintenance for the next 2 hours?`;
             break;
     }
 
     try {
       const result = await refineScenarioParameters({
         scenarioDescription,
-        currentKpis: 'Current KPIs are stable. Rajdhani punctuality is 98%, but average freight delay is 12%.',
+        currentKpis: 'Overall Punctuality: 82%, Average Delay: 18 min, Track Utilization: 76%',
         optimizationGoals: values.optimizationGoals,
       });
       setAiResult(result);
