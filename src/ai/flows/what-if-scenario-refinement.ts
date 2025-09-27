@@ -21,13 +21,13 @@ const prompt = ai.definePrompt({
   name: 'refineScenarioParametersPrompt',
   input: {schema: RefineScenarioParametersInputSchema},
   output: {schema: RefineScenarioParametersOutputSchema},
-  prompt: `You are an AI assistant for a busy train traffic controller who needs brief, crisp recommendations. Your suggestions must be extremely direct and to the point.
+  prompt: `You are an AI assistant for a busy train traffic controller who needs extremely brief and crisp recommendations. Your suggestions must be direct, one-line commands.
 
 **Scenario:** {{{scenarioDescription}}}
 **Current KPIs:** {{{currentKpis}}}
 **Optimization Goals:** {{{optimizationGoals}}}
 
-Provide the refined parameters as a bulleted list of direct commands (e.g., "- Reduce freight holding time: 15 min", "- Assign Platform 3: Northbound express trains"). The reasoning should be a single, brief sentence explaining the strategy.
+Provide the refined parameters as a highly concise, bulleted list of no more than 3 one-line commands. Each command must be immediately actionable (e.g., "- Reduce freight holding time: 15 min", "- Assign Platform 3: Northbound express trains"). The reasoning must be a single, brief sentence explaining the overall strategy.
 `,
 });
 
