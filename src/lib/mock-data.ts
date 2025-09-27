@@ -61,7 +61,7 @@ export const mockTrains: Train[] = [
 export const mockKpis: Kpi[] = [
     { title: 'Overall Punctuality', value: '82%', change: '+1.2%', changeType: 'increase' },
     { title: 'Average Delay', value: '18 min', change: '-3 min', changeType: 'decrease' },
-    { title: 'Network Throughput', value: '95 trains/hr', change: '+5 t/hr', changeType: 'increase' },
+    { title: 'Network Throughput', value: '95 trains/day', change: '+5 t/day', changeType: 'increase' },
     { title: 'Track Utilization', value: '76%', change: '-0.5%', changeType: 'decrease' },
 ];
 
