@@ -74,10 +74,6 @@ export default function SettingsPage() {
                 <Label htmlFor="system-alerts" className="flex-grow">System Alerts</Label>
                 <Switch id="system-alerts" defaultChecked />
                 </div>
-                <div className="flex items-center justify-between">
-                <Label htmlFor="email-digests" className="flex-grow">Daily Email Digest</Label>
-                <Switch id="email-digests" />
-                </div>
             </CardContent>
             </Card>
         </div>
