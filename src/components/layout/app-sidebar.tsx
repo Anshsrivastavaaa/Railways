@@ -70,7 +70,7 @@ export function AppSidebar() {
               </Link>
             </SidebarMenuItem>
              <SidebarMenuItem>
-                <Link href="/">
+                <Link href="/login">
                     <SidebarMenuButton tooltip="Logout">
                         <LogOut/>
                         <span>Logout</span>
