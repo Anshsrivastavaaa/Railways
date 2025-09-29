@@ -67,7 +67,7 @@ export const mockKpis: Kpi[] = [
 ];
 
 export const mockPunctualityData = [
-  { name: 'Rajdhani/Shatabdi', onTime: 95, delayed: 5, color: 'hsl(var(--chart-1))' },
+  { name: 'Rajdhani', onTime: 95, delayed: 5, color: 'hsl(var(--chart-1))' },
   { name: 'Duronto/Express', onTime: 85, delayed: 15, color: 'hsl(var(--chart-2))' },
   { name: 'Mail/Superfast', onTime: 80, delayed: 20, color: 'hsl(var(--chart-3))' },
   { name: 'Local/Suburban', onTime: 75, delayed: 25, color: 'hsl(var(--chart-4))' },

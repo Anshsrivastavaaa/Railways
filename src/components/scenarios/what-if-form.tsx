@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -47,6 +48,12 @@ export function WhatIfForm() {
     resolver: zodResolver(scenarioSchema),
     defaultValues: {
       optimizationGoals: 'Minimize freight delay while maintaining high-priority train punctuality above 95%.',
+      scenarioType: undefined,
+      trainId: '',
+      trackId: '',
+      duration: '',
+      newRoute: '',
+      rescheduleTime: '',
     },
   });
 
