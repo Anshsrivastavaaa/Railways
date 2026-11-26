@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { refineScenarioParameters } from '@/ai/flows/what-if-scenario-refinement';
 import { RefineScenarioParametersOutput } from '@/lib/types';
 import { mockTrains, mockDisruptions } from '@/lib/mock-data';
+import { parseAiError } from '@/lib/ai-error';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -102,11 +103,8 @@ export function WhatIfForm() {
       setAiResult(result);
     } catch (error) {
       console.error('Error refining scenario:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to get a response from the AI. Please try again.',
-      });
+      const { title, description } = parseAiError(error);
+      toast({ variant: 'destructive', title, description });
     } finally {
       setIsLoading(false);
     }

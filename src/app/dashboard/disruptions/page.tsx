@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Bot, Loader2 } from "lucide-react";
 import { reoptimizeOnDisruption } from "@/ai/flows/reoptimize-on-disruption";
 import { useToast } from "@/hooks/use-toast";
+import { parseAiError } from "@/lib/ai-error";
 import {
   Dialog,
   DialogContent,
@@ -73,11 +74,8 @@ export default function DisruptionsPage() {
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error re-optimizing schedule:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to get a response from the AI. Please try again.',
-      });
+      const { title, description } = parseAiError(error);
+      toast({ variant: 'destructive', title, description });
     } finally {
       setIsLoading(null);
     }

@@ -1,12 +1,13 @@
 {
-  "name": "nextn",
+  "name": "railflow-optimizer",
   "version": "0.1.0",
+  "description": "Intelligent Decision-Support System for Indian Railways Train Traffic Control",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
-    "build": "NODE_ENV=production next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
